@@ -147,10 +147,13 @@ def prepare_runtime(work):
     if hashlib.sha256(payload).hexdigest() != ARCHIVE_HASHES[target]:
         raise RuntimeError('Node-check runtime checksum mismatch')
     binary = work / 'sing-box'
-    with tarfile.open(fileobj=io.BytesIO(payload), mode='r:gz') as bundle:
-        member = next(m for m in bundle.getmembers() if m.isfile() and m.name.endswith('/sing-box'))
-        binary.write_bytes(bundle.extractfile(member).read())
-    binary.chmod(0o755)
+    if not binary.exists():
+        with tarfile.open(fileobj=io.BytesIO(payload), mode='r:gz') as bundle:
+            member = next(m for m in bundle.getmembers() if m.isfile() and m.name.endswith('/sing-box'))
+            binary.write_bytes(bundle.extractfile(member).read())
+        binary.chmod(0o755)
+        if platform.system() == 'Darwin':
+            subprocess.run(['codesign', '--force', '--sign', '-', str(binary)], capture_output=True)
     return binary
 
 
