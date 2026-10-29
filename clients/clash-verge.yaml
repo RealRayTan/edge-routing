@@ -116,8 +116,11 @@ rules:
   - RULE-SET,icloud,DIRECT
   - RULE-SET,apple,DIRECT
 
-  # AI 独立业务 (待 Serv00 云端链路配置就绪后全自动出口)
+  # AI 独立业务
   - DOMAIN-SUFFIX,gemini.google.com,AI-专线
+  - DOMAIN-SUFFIX,aistudio.google.com,AI-专线
+  - DOMAIN,generativelanguage.googleapis.com,AI-专线
+  - DOMAIN,proactivebackend-pa.googleapis.com,AI-专线
 
   # 海外服务
   - RULE-SET,google,日常流媒体
