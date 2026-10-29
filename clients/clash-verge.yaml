@@ -88,6 +88,9 @@ rule-providers:
     interval: 86400
 
 rules:
+  # 阻止 QUIC (UDP 443)，解决 YouTube 假死并强制浏览器走高速 TCP (HTTP/2)
+  - AND,((NETWORK,udp),(DST-PORT,443)),REJECT
+
   # 基础应用与广告拦截
   - RULE-SET,applications,DIRECT
   - RULE-SET,private,DIRECT
@@ -115,6 +118,11 @@ rules:
   # Apple / iCloud 直连
   - RULE-SET,icloud,DIRECT
   - RULE-SET,apple,DIRECT
+
+  # YouTube 核心域名显式调度
+  - DOMAIN-SUFFIX,googlevideo.com,日常流媒体
+  - DOMAIN-SUFFIX,youtube.com,日常流媒体
+  - DOMAIN-SUFFIX,ytimg.com,日常流媒体
 
   # AI 独立业务
   - DOMAIN-SUFFIX,gemini.google.com,AI-专线

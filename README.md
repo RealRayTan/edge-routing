@@ -6,32 +6,32 @@
 
 ```mermaid
 flowchart LR
-    client["客户端 (Shadowrocket)"]
+    client["客户端 (Shadowrocket / Clash)"]
     
     subgraph media["日常流媒体通道 (CF-MEDIA)"]
-        entry["Anycast 优选入口 (0.5ms 极速握手)"]
+        entry["Anycast 优选入口 (香港 HKG 29ms 极速握手)"]
         worker["EdgeTunnel (Pages 运行时)"]
         dest_gen["通用站点 (YouTube 4K / GitHub / Twitter)"]
         entry --> worker --> dest_gen
     end
     
-    subgraph ai["AI 专线通道 (CF-AI)"]
-        warp["Cloudflare WARP (WireGuard 协议)"]
+    subgraph ai["AI 专线通道 (AI-专线)"]
+        node_ai["低延迟纯净出口 (新加坡 TT / 专线)"]
         dest_ai["AI 服务 (Gemini / Antigravity API)"]
-        warp --> dest_ai
+        node_ai --> dest_ai
     end
 
     client -->|分流规则: 通用娱乐| entry
-    client -->|分流规则: *.googleapis.com / *.google.com| warp
+    client -->|分流规则: *.googleapis.com / gemini.google.com| node_ai
 ```
 
 ## 架构核心原理
 
 ### 1. 业务通道完全解耦
 - **`CF-MEDIA`（流媒体与日常娱乐主通道）**：
-  通过国内至 Cloudflare 边缘仅 0.5ms 的 Anycast 优选入口接入，由部署在 Cloudflare Pages 上的 EdgeTunnel 直连出站。享受千兆低延迟与完全免费的无限流量，负责承载 99% 的大流量业务（YouTube 4K、Twitter/X、GitHub、海外下载等）。
-- **`CF-AI`（AI 业务独立专线）**：
-  Google Gemini 及 Google Cloud Code / Antigravity API 对云服务商机房 IP（如 Cloudflare ASN 13335 香港节点）有严格的地域封锁（`User location is not supported`）。本架构通过专属的个人版 WireGuard (Cloudflare WARP) 节点独立接管 AI 流量，以美区纯净个人 VPN 出口直连 Google，彻底杜绝 400 拒绝服务与页面卡死。
+  通过国内至 Cloudflare 香港边缘仅 29ms 的 Anycast 优选入口（`104.19.42.1`）接入，由部署在 Cloudflare Pages 上的 EdgeTunnel 直连出站。享受千兆低延迟与完全免费的无限流量，负责承载 99% 的大流量业务（YouTube 4K、Twitter/X、GitHub、海外下载等）。
+- **`AI-专线`（AI 业务独立专线）**：
+  Google Gemini 及 Google Cloud Code / Antigravity API 对云服务商机房 IP（如 Cloudflare ASN 13335）有严格的地域封锁（`User location is not supported`）。本架构通过专属低延迟节点（如新加坡 TT 节点）接管 AI 流量，以纯净地区出口直连 Google，彻底杜绝 400 拒绝服务与页面卡死。
 
 ### 2. 告别云端扫描与频繁抖动
 - **停用云端 Actions 定时扫描**：云端测试机位于海外数据中心，无法真实反映国内运营商线路质量，且定时刷新会导致长连接中断。本项目固化本地实测最优的极速入口。
@@ -39,8 +39,9 @@ flowchart LR
 
 ## 仓库结构与模块
 
-- `ip.txt` 与 `global.txt`。本地实测固化的极速 Anycast 入口（`CF-MEDIA`）。
+- `ip.txt` 与 `global.txt`。本地实测固化的香港 Anycast 入口（`104.19.42.1#CF-MEDIA`）。
 - `clients/shadowrocket.conf`。客户端配置文件，内置分流规则集、`日常流媒体` 与 `AI-专线` 策略组。
+- `clients/clash-verge.yaml`。Clash Verge Rev / FlClash 扩展覆写配置，内置 QUIC 阻断优化。
 - `clients/README.md`。客户端配置导入与使用指引。
 - `scripts/verify_chain.py`。本地端到端验证工具，断言通用出站与 Gemini 出站的分流表现。
 - `scripts/node_probe.py`。本地 sing-box 运行时管理与真实传输吞吐压测工具。
@@ -53,7 +54,7 @@ flowchart LR
 2. 确认首页顶部的「全局路由」设置为「**配置**」。
 3. 首页展示两大分组，实现全自动分流：
    - **`日常流媒体`**：自动接入 `CF-MEDIA`，负责所有娱乐与通用网络流量。
-   - **`AI-专线`**：自动接入 `CF-AI`，负责 Gemini 网页版与本地 OpenCode / Magpie 对话。
+   - **`AI-专线`**：接入 `TT` 独立专线，负责 Gemini 网页版与本地 OpenCode / Magpie 对话。
 
 ## 本地验证与测试
 
@@ -66,5 +67,5 @@ python3 -m unittest discover -s tests -v
 通过指定入口 IP 执行链路健康检查：
 
 ```bash
-python3 scripts/verify_chain.py --ip 104.16.39.201
+python3 scripts/verify_chain.py --ip 104.19.42.1
 ```
