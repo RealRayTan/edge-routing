@@ -28,10 +28,15 @@ Apple、WeChat、Global、China 改为原生 Shadowrocket 格式；Apple、Globa
 
 ## Clash Verge Rev / FlClash (Windows / macOS)
 
-在 Clash Verge Rev 或 FlClash（Mihomo 内核客户端）的「订阅」页面中导入 EdgeTunnel 订阅链接，并在「扩展配置 (Merge)」中引入 `clients/clash-verge.yaml`：
+在 Clash Verge Rev 的「扩展配置 (Merge)」或 FlClash 中引入 `clients/clash.yaml`。若直连 GitHub 出现拦截，可优先使用国内 CDN 免翻镜像：
 
 ```
-https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash-verge.yaml
+https://fastly.jsdelivr.net/gh/RealRayTan/edge-routing@main/clients/clash.yaml
+```
+
+备用官方 Raw 链接：
+```
+https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash.yaml
 ```
 
 配置同样将分组对齐为 `日常流媒体` 与 `AI-专线`。配置内置 QUIC (UDP 443) 阻断规则，防止 YouTube 视频在无 UDP 支持的 EdgeTunnel 上遭遇缓冲卡死，强制浏览器使用高速 TCP (HTTP/2) 流畅播放。

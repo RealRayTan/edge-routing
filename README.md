@@ -35,11 +35,12 @@ flowchart LR
 ## 客户端一键配置
 
 ### 1. Clash Verge Rev / FlClash (Windows / macOS)
-1. 在客户端“订阅”页面导入你的 EdgeTunnel 订阅链接。
-2. 在“扩展配置 (Merge)”中添加以下配置地址并保存激活：
+1. 在客户端导入你的节点订阅。
+2. 引入以下配置地址（国内网络推荐免翻 CDN 镜像，杜绝拦截报错）：
    ```
-   https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash-verge.yaml
+   https://fastly.jsdelivr.net/gh/RealRayTan/edge-routing@main/clients/clash.yaml
    ```
+   （备用官方 Raw：`https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash.yaml`）
 3. 客户端自动生成“日常流媒体”与“AI-专线”分组，并内嵌 QUIC 阻断与 YouTube 规则。
 
 ### 2. Shadowrocket (iOS)
@@ -62,7 +63,7 @@ flowchart LR
 
 ## 安全与隐私说明
 
-- **零凭据暴露**。仓库中发布的 `clash-verge.yaml` 与 `shadowrocket.conf` 仅包含分流规则集与策略组结构，**完全不含任何节点信息、私密域名、UUID 密码或订阅 Token**。
+- **零凭据暴露**。仓库中发布的 `clash.yaml` 与 `shadowrocket.conf` 仅包含分流规则集与策略组结构，**完全不含任何节点信息、私密域名、UUID 密码或订阅 Token**。
 - **无法单独作为代理连接**。他人仅下载这些配置文件无法连接到任何代理服务。客户端必须由使用者自行绑定并导入属于自己的节点订阅后方能生效。
 - **公共 Anycast IP 说明**。`ip.txt` 中收录的 `104.16.39.201` 为 Cloudflare 官方公开广播的公共 CDN 边缘地址，并非任何人的私有服务器。缺少专属 VLESS 凭据时无法建立任何隧道连接。
 

@@ -35,11 +35,12 @@ flowchart LR
 ## One-Click Client Setup
 
 ### 1. Clash Verge Rev / FlClash (Windows / macOS)
-1. Import your EdgeTunnel subscription link in the client **Subscriptions** tab.
-2. In **Script / Merge Extensions**, add the following URL and activate:
+1. Import your node subscription link in the client.
+2. In **Script / Merge Extensions**, add the following URL and activate (CDN mirror recommended to bypass GitHub raw blocks):
    ```
-   https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash-verge.yaml
+   https://fastly.jsdelivr.net/gh/RealRayTan/edge-routing@main/clients/clash.yaml
    ```
+   (Official Raw: `https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash.yaml`)
 3. The client automatically configures `日常流媒体` (Daily Streaming) and `AI-专线` (Dedicated AI) groups with built-in QUIC blocking.
 
 ### 2. Shadowrocket (iOS)
@@ -62,7 +63,7 @@ Fully aligned with the `104.16.39.201` high-throughput node in this repository. 
 
 ## Security & Privacy Assurance
 
-- **Zero credential leakage**. The published `clash-verge.yaml` and `shadowrocket.conf` contain routing rules and strategy groups only. **They contain no proxies, private domains, UUID secrets, or subscription tokens**.
+- **Zero credential leakage**. The published `clash.yaml` and `shadowrocket.conf` contain routing rules and strategy groups only. **They contain no proxies, private domains, UUID secrets, or subscription tokens**.
 - **Cannot function as standalone proxies**. Third parties downloading these files cannot connect to any proxy server. Clients require users to supply their own backend subscription.
 - **Public Anycast IP**. The address `104.16.39.201` in `ip.txt` is an official public Cloudflare CDN Anycast endpoint, not a private server. Without valid VLESS credentials, no tunnel can be established.
 
