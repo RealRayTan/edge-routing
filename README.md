@@ -9,7 +9,7 @@ flowchart LR
     client["客户端 (Shadowrocket / Clash)"]
     
     subgraph media["日常流媒体通道 (CF-MEDIA)"]
-        entry["Anycast 优选入口 (香港 HKG 29ms 极速握手)"]
+        entry["Anycast 优选入口 (高速高吞吐 104.16.39.201)"]
         worker["EdgeTunnel (Pages 运行时)"]
         dest_gen["通用站点 (YouTube 4K / GitHub / Twitter)"]
         entry --> worker --> dest_gen
@@ -29,7 +29,7 @@ flowchart LR
 
 ### 1. 业务通道完全解耦
 - **`CF-MEDIA`（流媒体与日常娱乐主通道）**：
-  通过国内至 Cloudflare 香港边缘仅 29ms 的 Anycast 优选入口（`104.19.42.1`）接入，由部署在 Cloudflare Pages 上的 EdgeTunnel 直连出站。享受千兆低延迟与完全免费的无限流量，负责承载 99% 的大流量业务（YouTube 4K、Twitter/X、GitHub、海外下载等）。
+  通过国内至 Cloudflare 边缘的高速 Anycast 优选入口（`104.16.39.201`）接入，由部署在 Cloudflare Pages 上的 EdgeTunnel 直连出站。享受千兆低延迟与完全免费的无限流量，负责承载 99% 的大流量业务（YouTube 4K、Twitter/X、GitHub、海外下载等），并与电视端（LG webOS TV）完全统一。
 - **`AI-专线`（AI 业务独立专线）**：
   Google Gemini 及 Google Cloud Code / Antigravity API 对云服务商机房 IP（如 Cloudflare ASN 13335）有严格的地域封锁（`User location is not supported`）。本架构通过专属低延迟节点（如新加坡 TT 节点）接管 AI 流量，以纯净地区出口直连 Google，彻底杜绝 400 拒绝服务与页面卡死。
 
@@ -39,7 +39,7 @@ flowchart LR
 
 ## 仓库结构与模块
 
-- `ip.txt` 与 `global.txt`。本地实测固化的香港 Anycast 入口（`104.19.42.1#CF-MEDIA`）。
+- `ip.txt` 与 `global.txt`。本地实测固化的高速 Anycast 入口（`104.16.39.201#CF-MEDIA`）。
 - `clients/shadowrocket.conf`。客户端配置文件，内置分流规则集、`日常流媒体` 与 `AI-专线` 策略组。
 - `clients/clash-verge.yaml`。Clash Verge Rev / FlClash 扩展覆写配置，内置 QUIC 阻断优化。
 - `clients/README.md`。客户端配置导入与使用指引。
@@ -67,5 +67,5 @@ python3 -m unittest discover -s tests -v
 通过指定入口 IP 执行链路健康检查：
 
 ```bash
-python3 scripts/verify_chain.py --ip 104.19.42.1
+python3 scripts/verify_chain.py --ip 104.16.39.201
 ```

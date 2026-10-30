@@ -9,7 +9,7 @@ flowchart LR
     client["Client (Shadowrocket / Clash)"]
     
     subgraph media["Daily Streaming Channel (CF-MEDIA)"]
-        entry["Preferred Anycast Entrance (Hong Kong HKG 29ms Handshake)"]
+        entry["Preferred Anycast Entrance (High-Throughput 104.16.39.201)"]
         worker["EdgeTunnel (Pages Runtime)"]
         dest_gen["General Sites (YouTube 4K / GitHub / Twitter)"]
         entry --> worker --> dest_gen
@@ -29,7 +29,7 @@ flowchart LR
 
 ### 1. Complete Decoupling of Traffic Channels
 - **`CF-MEDIA` (Main Channel for Streaming & Routine Browsing)**:
-  Connects through an Anycast entrance with a 29ms local handshake to Cloudflare Hong Kong (`104.19.42.1`) and routes directly via EdgeTunnel hosted on Cloudflare Pages. It delivers unmetered, gigabit-speed bandwidth for over 99% of daily traffic (YouTube 4K, Twitter/X, GitHub, software downloads).
+  Connects through a high-throughput Anycast entrance (`104.16.39.201`) and routes directly via EdgeTunnel hosted on Cloudflare Pages. It delivers unmetered, gigabit-speed bandwidth for over 99% of daily traffic (YouTube 4K, Twitter/X, GitHub, software downloads), unified with LG webOS TV.
 - **`AI-专线` (Dedicated AI Channel)**:
   Google Gemini and Google Cloud Code / Antigravity APIs strictly block cloud data center IP ranges (such as Cloudflare ASN 13335) with `User location is not supported`. This architecture uses a dedicated low-latency node (such as Singapore TT) to handle AI traffic, providing clean residential/personal egress to prevent HTTP 400 errors and regional lockouts.
 
@@ -39,7 +39,7 @@ flowchart LR
 
 ## Repository Layout
 
-- `ip.txt` and `global.txt`. Static, locally verified Anycast entrance (`104.19.42.1#CF-MEDIA`).
+- `ip.txt` and `global.txt`. Static, locally verified Anycast entrance (`104.16.39.201#CF-MEDIA`).
 - `clients/shadowrocket.conf`. Shadowrocket configuration file with ad blocking, `日常流媒体` (daily streaming) and `AI-专线` (dedicated AI) routing groups.
 - `clients/clash-verge.yaml`. Clash Verge Rev / FlClash override configuration with built-in QUIC blocking for YouTube.
 - `clients/README.md`. Client import and setup guide.
@@ -67,5 +67,5 @@ python3 -m unittest discover -s tests -v
 Execute an end-to-end chain verification against an entrance IP:
 
 ```bash
-python3 scripts/verify_chain.py --ip 104.19.42.1
+python3 scripts/verify_chain.py --ip 104.16.39.201
 ```
