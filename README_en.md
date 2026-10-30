@@ -60,6 +60,12 @@ Fully aligned with the `104.16.39.201` high-throughput node in this repository. 
 | **`日常流媒体`** | `CF-MEDIA` | YouTube, Twitter/X, GitHub, and general downloads. Gigabit bandwidth, unmetered. |
 | **`AI-专线`** | `TT` / Dedicated | Gemini web, Google AI Studio, and OpenCode/Magpie sessions. Clean egress without regional blocks. |
 
+## Security & Privacy Assurance
+
+- **Zero credential leakage**. The published `clash-verge.yaml` and `shadowrocket.conf` contain routing rules and strategy groups only. **They contain no proxies, private domains, UUID secrets, or subscription tokens**.
+- **Cannot function as standalone proxies**. Third parties downloading these files cannot connect to any proxy server. Clients require users to supply their own backend subscription.
+- **Public Anycast IP**. The address `104.16.39.201` in `ip.txt` is an official public Cloudflare CDN Anycast endpoint, not a private server. Without valid VLESS credentials, no tunnel can be established.
+
 ## Verification and Testing
 
 This project includes end-to-end health checking tools to ensure all published endpoints provide working outbound connectivity:
