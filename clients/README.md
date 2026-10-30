@@ -26,19 +26,25 @@ Apple、WeChat、Global、China 改为原生 Shadowrocket 格式；Apple、Globa
 
 节点订阅更新与配置文件更新是两个独立设置。推荐使用本地测速固化的静态入口列表，并在小火箭中关闭频繁的自动订阅更新，避免由于入口 IP 频繁更换造成断连。
 
-## Clash Verge Rev / FlClash (Windows / macOS)
+## 桌面客户端配置 (Clash Verge Rev / FlClash)
 
-在 Clash Verge Rev 的「扩展配置 (Merge)」或 FlClash 中引入 `clients/clash.yaml`。若直连 GitHub 出现拦截，可优先使用国内 CDN 免翻镜像：
-
+### Clash Verge Rev (扩展配置 Merge 模式)
+在「扩展配置 (Merge)」中添加以下规则订阅，并与主订阅合并激活。若直连 GitHub 出现拦截，优先使用免翻 CDN 镜像：
 ```
 https://fastly.jsdelivr.net/gh/RealRayTan/edge-routing@main/clients/clash.yaml
 ```
-
 备用官方 Raw 链接：
 ```
 https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash.yaml
 ```
 
-配置同样将分组对齐为 `日常流媒体` 与 `AI-专线`。配置内置 QUIC (UDP 443) 阻断规则，防止 YouTube 视频在无 UDP 支持的 EdgeTunnel 上遭遇缓冲卡死，强制浏览器使用高速 TCP (HTTP/2) 流畅播放。
+### FlClash (单体独立配置模式)
+由于 FlClash 不支持远程规则自动 Merge，且公共在线订阅转换服务存在格式兼容与故障风险，推荐直接在本地一键生成专属完整配置：
+```bash
+python3 scripts/generate_local_config.py
+```
+运行后将自动结合本地最优 Anycast 入口与鉴权参数，在 `clients/flclash.local.yaml` 输出就绪配置。在 FlClash 中选择「配置 -> 从本地文件导入」即可秒级连通，无需依赖任何第三方转换后端。
+
+配置均内置 QUIC (UDP 443) 阻断规则，防止 YouTube 视频在无 UDP 支持的 EdgeTunnel 上遭遇缓冲卡死，强制浏览器使用高速 TCP (HTTP/2) 流畅播放。
 
 参考：[分组及自动更新说明](https://github.com/LOWERTOP/Shadowrocket/wiki) · [分组配置语法](https://github.com/LOWERTOP/Shadowrocket/blob/main/lazy_group.conf)

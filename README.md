@@ -34,14 +34,13 @@ flowchart LR
 
 ## 客户端一键配置
 
-### 1. Clash Verge Rev / FlClash (Windows / macOS)
-1. 在客户端导入你的节点订阅。
-2. 引入以下配置地址（国内网络推荐免翻 CDN 镜像，杜绝拦截报错）：
-   ```
-   https://fastly.jsdelivr.net/gh/RealRayTan/edge-routing@main/clients/clash.yaml
-   ```
-   （备用官方 Raw：`https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash.yaml`）
-3. 客户端自动生成“日常流媒体”与“AI-专线”分组，并内嵌 QUIC 阻断与 YouTube 规则。
+### 1. 桌面端 (Clash Verge Rev / FlClash)
+- **Clash Verge Rev（Merge 模式）**：在「扩展配置 (Merge)」中添加免翻 CDN 链接：
+  ```
+  https://fastly.jsdelivr.net/gh/RealRayTan/edge-routing@main/clients/clash.yaml
+  ```
+- **FlClash（本地配置模式）**：运行 `python3 scripts/generate_local_config.py`，并在客户端选择「从本地文件导入」生成的 `clients/flclash.local.yaml`，免去在线转换故障烦恼。
+- 自动生成“日常流媒体”与“AI-专线”分组，内嵌 QUIC 阻断与 YouTube 规则。
 
 ### 2. Shadowrocket (iOS)
 1. 在小火箭“配置”页面点击“从 URL 添加”，输入以下地址并下载应用：

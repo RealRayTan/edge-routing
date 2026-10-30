@@ -34,14 +34,13 @@ flowchart LR
 
 ## One-Click Client Setup
 
-### 1. Clash Verge Rev / FlClash (Windows / macOS)
-1. Import your node subscription link in the client.
-2. In **Script / Merge Extensions**, add the following URL and activate (CDN mirror recommended to bypass GitHub raw blocks):
-   ```
-   https://fastly.jsdelivr.net/gh/RealRayTan/edge-routing@main/clients/clash.yaml
-   ```
-   (Official Raw: `https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash.yaml`)
-3. The client automatically configures `日常流媒体` (Daily Streaming) and `AI-专线` (Dedicated AI) groups with built-in QUIC blocking.
+### 1. Desktop Clients (Clash Verge Rev / FlClash)
+- **Clash Verge Rev (Merge Mode)**: Add the CDN link in **Script / Merge Extensions**:
+  ```
+  https://fastly.jsdelivr.net/gh/RealRayTan/edge-routing@main/clients/clash.yaml
+  ```
+- **FlClash (Local Profile Mode)**: Run `python3 scripts/generate_local_config.py` and import the generated `clients/flclash.local.yaml` via **Import from File**.
+- Automatically configures `日常流媒体` (Daily Streaming) and `AI-专线` (Dedicated AI) groups with built-in QUIC blocking.
 
 ### 2. Shadowrocket (iOS)
 1. In the **Config** tab, tap **Add from URL**, paste the following address, and download:
