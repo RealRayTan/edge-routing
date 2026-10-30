@@ -38,14 +38,14 @@ flowchart LR
 1. 在客户端“订阅”页面导入你的 EdgeTunnel 订阅链接。
 2. 在“扩展配置 (Merge)”中添加以下配置地址并保存激活：
    ```
-   https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/clash-verge.yaml
+   https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash-verge.yaml
    ```
 3. 客户端自动生成“日常流媒体”与“AI-专线”分组，并内嵌 QUIC 阻断与 YouTube 规则。
 
 ### 2. Shadowrocket (iOS)
 1. 在小火箭“配置”页面点击“从 URL 添加”，输入以下地址并下载应用：
    ```
-   https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/shadowrocket.conf
+   https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/shadowrocket.conf
    ```
 2. 在首页确保“全局路由”设置为“配置”。
 3. 首页自动展示两大专线分组，自动执行分流。

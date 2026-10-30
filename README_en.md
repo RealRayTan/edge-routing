@@ -38,14 +38,14 @@ flowchart LR
 1. Import your EdgeTunnel subscription link in the client **Subscriptions** tab.
 2. In **Script / Merge Extensions**, add the following URL and activate:
    ```
-   https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/clash-verge.yaml
+   https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash-verge.yaml
    ```
 3. The client automatically configures `日常流媒体` (Daily Streaming) and `AI-专线` (Dedicated AI) groups with built-in QUIC blocking.
 
 ### 2. Shadowrocket (iOS)
 1. In the **Config** tab, tap **Add from URL**, paste the following address, and download:
    ```
-   https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/shadowrocket.conf
+   https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/shadowrocket.conf
    ```
 2. Set **Global Routing** to **Config** on the Home screen.
 3. The client automatically splits daily media and AI traffic.

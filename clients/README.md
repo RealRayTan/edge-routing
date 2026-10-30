@@ -7,7 +7,7 @@
 在小火箭「配置」页添加以下地址，下载后选择「使用配置」，首页「全局路由」选择「配置」：
 
 ```
-https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/shadowrocket.conf
+https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/shadowrocket.conf
 ```
 
 配置保留原有 DNS、Host、Google 重写与服务分流设置，把原来使用 `PROXY` 的规则改为 `日常流媒体`，并增加 `AI-专线` 独立调度 Gemini/Google 流量。Steam 下载域名和 SteamCN 直连，Steam 其他服务仍按原规则代理。首次下载后选择「使用配置」，以后只使用这一份，不必来回切换配置。
@@ -31,7 +31,7 @@ Apple、WeChat、Global、China 改为原生 Shadowrocket 格式；Apple、Globa
 在 Clash Verge Rev 或 FlClash（Mihomo 内核客户端）的「订阅」页面中导入 EdgeTunnel 订阅链接，并在「扩展配置 (Merge)」中引入 `clients/clash-verge.yaml`：
 
 ```
-https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/clash-verge.yaml
+https://raw.githubusercontent.com/RealRayTan/edge-routing/main/clients/clash-verge.yaml
 ```
 
 配置同样将分组对齐为 `日常流媒体` 与 `AI-专线`。配置内置 QUIC (UDP 443) 阻断规则，防止 YouTube 视频在无 UDP 支持的 EdgeTunnel 上遭遇缓冲卡死，强制浏览器使用高速 TCP (HTTP/2) 流畅播放。

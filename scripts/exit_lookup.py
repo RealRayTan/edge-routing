@@ -38,7 +38,7 @@ def lookup_exit(address):
             return {**unknown, 'failure': 'invalid_exit_ip'}
         request = urllib.request.Request(
             f'https://api.ip2location.io/?ip={address}&format=json',
-            headers={'Accept': 'application/json', 'User-Agent': 'cf-preferred-ips/1.0'})
+            headers={'Accept': 'application/json', 'User-Agent': 'edge-routing/1.0'})
         # Explicit IP lookup: the request origin has no role in the result.
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
         with opener.open(request, timeout=15) as response:
