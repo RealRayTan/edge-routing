@@ -1,71 +1,73 @@
-# Cloudflare Anycast Preferred Entrance & Dual-Track Egress Architecture (CF-MEDIA / CF-AI)
+# Cloudflare Anycast Preferred & Dual-Track Routing Architecture (CF-MEDIA / AI-专线)
+
+Combines unmetered gigabit speeds for general media and downloads with high availability for risk-sensitive AI workloads. Unified across iOS, Windows, macOS, and LG webOS TV.
 
 [English](README_en.md) | [中文](README.md)
 
-This project maintains Cloudflare preferred Anycast entrances and client routing rules. By decoupling high-bandwidth general media traffic from sensitive AI traffic at the client layer, this architecture delivers ultra-low latency for routine browsing while guaranteeing reliable reachability for AI services (Gemini, Google, and OpenCode Magpie).
-
 ```mermaid
 flowchart LR
-    client["Client (Shadowrocket / Clash)"]
+    client["All-Platform Clients (iOS / PC / Mac / LG TV)"]
     
     subgraph media["Daily Streaming Channel (CF-MEDIA)"]
-        entry["Preferred Anycast Entrance (High-Throughput 104.16.39.201)"]
+        entry["Anycast Preferred Entrance (Locally Verified 104.16.39.201)"]
         worker["EdgeTunnel (Pages Runtime)"]
-        dest_gen["General Sites (YouTube 4K / GitHub / Twitter)"]
+        dest_gen["General Sites (YouTube 4K / GitHub / Twitter / Downloads)"]
         entry --> worker --> dest_gen
     end
     
     subgraph ai["Dedicated AI Channel (AI-专线)"]
         node_ai["Low-Latency Clean Egress (Singapore TT / Dedicated)"]
-        dest_ai["AI Services (Gemini / Antigravity API)"]
+        dest_ai["AI Services (Gemini / AI Studio / OpenCode)"]
         node_ai --> dest_ai
     end
 
-    client -->|Routing Rule: General Media| entry
-    client -->|Routing Rule: *.googleapis.com / gemini.google.com| node_ai
+    client -->|General Traffic: Default Routing| entry
+    client -->|AI Traffic: *.googleapis.com / gemini.google.com| node_ai
 ```
 
-## Core Architectural Concepts
+## Why This Architecture
 
-### 1. Complete Decoupling of Traffic Channels
-- **`CF-MEDIA` (Main Channel for Streaming & Routine Browsing)**:
-  Connects through a high-throughput Anycast entrance (`104.16.39.201`) and routes directly via EdgeTunnel hosted on Cloudflare Pages. It delivers unmetered, gigabit-speed bandwidth for over 99% of daily traffic (YouTube 4K, Twitter/X, GitHub, software downloads), unified with LG webOS TV.
-- **`AI-专线` (Dedicated AI Channel)**:
-  Google Gemini and Google Cloud Code / Antigravity APIs strictly block cloud data center IP ranges (such as Cloudflare ASN 13335) with `User location is not supported`. This architecture uses a dedicated low-latency node (such as Singapore TT) to handle AI traffic, providing clean residential/personal egress to prevent HTTP 400 errors and regional lockouts.
+- **Unmetered gigabit speeds and clean AI egress together**. Cloudflare data center IPs (ASN 13335) are strictly geo-blocked by Google Gemini. This architecture splits traffic cleanly at the client layer. Over 99% of high-volume traffic uses free gigabit Anycast, while AI traffic routes through clean residential egress to prevent HTTP 400 errors and CAPTCHAs.
+- **No node flapping or 502 errors**. Eliminates ineffective automated scans in foreign data centers, replacing them with a locally benchmarked static Anycast entrance. Explicit static selection prevents continuous multi-node racing and keeps long-lived connections stable.
+- **Zero YouTube buffering lockups**. Because WebSocket tunnels lack native UDP support, browser attempts to negotiate HTTP/3 (QUIC) cause buffering freezes. Built-in UDP 443 blocking forces browsers to immediately use fast TCP (HTTP/2), eliminating playback stalls.
+- **Unified cross-device configuration**. One consistent design across all devices: iPhone, iPad, Windows, Mac, and the living room LG webOS OLED TV.
 
-### 2. Eliminating Remote Scans and Node Jitter
-- **No Remote Automated Scans**: Scheduled cloud scans in foreign data centers do not reflect actual local network performance and cause subscription churn that interrupts long-lived connections. This repository maintains a verified, locally benchmarked static entrance instead.
-- **Deterministic Routing Over Jittery Polling**: Using explicit `select` groups prevents the client from constantly polling multiple nodes, eliminating node hopping and HTTP 502 Bad Gateway timeouts.
+## One-Click Client Setup
 
-## Repository Layout
+### 1. Clash Verge Rev / FlClash (Windows / macOS)
+1. Import your EdgeTunnel subscription link in the client **Subscriptions** tab.
+2. In **Script / Merge Extensions**, add the following URL and activate:
+   ```
+   https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/clash-verge.yaml
+   ```
+3. The client automatically configures `日常流媒体` (Daily Streaming) and `AI-专线` (Dedicated AI) groups with built-in QUIC blocking.
 
-- `ip.txt` and `global.txt`. Static, locally verified Anycast entrance (`104.16.39.201#CF-MEDIA`).
-- `clients/shadowrocket.conf`. Shadowrocket configuration file with ad blocking, `日常流媒体` (daily streaming) and `AI-专线` (dedicated AI) routing groups.
-- `clients/clash-verge.yaml`. Clash Verge Rev / FlClash override configuration with built-in QUIC blocking for YouTube.
-- `clients/README.md`. Client import and setup guide.
-- `scripts/verify_chain.py`. End-to-end verification script testing general and Gemini egress paths.
-- `scripts/node_probe.py`. Local sing-box test runtime for throughput benchmarks.
-- `scripts/update.py`. Local sampling script for Cloudflare official IPv4 CIDR ranges.
-- `scripts/exit_lookup.py`. Queries IP2Location / IPPure APIs to verify exit country and ASN data.
+### 2. Shadowrocket (iOS)
+1. In the **Config** tab, tap **Add from URL**, paste the following address, and download:
+   ```
+   https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/shadowrocket.conf
+   ```
+2. Set **Global Routing** to **Config** on the Home screen.
+3. The client automatically splits daily media and AI traffic.
 
-## Client Setup (Shadowrocket)
+### 3. LG webOS TV
+Fully aligned with the `104.16.39.201` high-throughput node in this repository. Serves as the primary endpoint for Alcyone on the TV, ensuring fast poster artwork fetching and uninterrupted 4K YouTube streaming.
 
-1. Open Shadowrocket, go to the **Config** tab, select `clients/shadowrocket.conf`, and tap **Update from URL**.
-2. On the Home screen, ensure **Global Routing** is set to **Config**.
-3. Two dedicated proxy groups are displayed, managing automated traffic splitting:
-   - **`日常流媒体`**: Routed to `CF-MEDIA` for streaming and general traffic.
-   - **`AI-专线`**: Routed to `TT` for Gemini web interface and local OpenCode / Magpie sessions.
+## Routing Group Design
+
+| Proxy Group | Default Egress | Handled Workloads & Characteristics |
+|---|---|---|
+| **`日常流媒体`** | `CF-MEDIA` | YouTube, Twitter/X, GitHub, and general downloads. Gigabit bandwidth, unmetered. |
+| **`AI-专线`** | `TT` / Dedicated | Gemini web, Google AI Studio, and OpenCode/Magpie sessions. Clean egress without regional blocks. |
 
 ## Verification and Testing
 
-Run the full unit test suite (all 30 assertions passing):
+This project includes end-to-end health checking tools to ensure all published endpoints provide working outbound connectivity:
 
 ```bash
+# Run unit tests (30 core assertions passing)
 python3 -m unittest discover -s tests -v
-```
 
-Execute an end-to-end chain verification against an entrance IP:
-
-```bash
+# End-to-end chain verification and routing check
 python3 scripts/verify_chain.py --ip 104.16.39.201
 ```

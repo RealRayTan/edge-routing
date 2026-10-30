@@ -1,71 +1,73 @@
-# Cloudflare Anycast 优选与客户端双轨解耦架构 (CF-MEDIA / CF-AI)
+# Cloudflare Anycast 优选与双轨分流架构 (CF-MEDIA / AI-专线)
 
-[中文](README.md) | [English](README_en.md)
+兼顾通用流媒体与下载的免费千兆极速，以及对风控敏感的 AI 业务高可用性。全平台（iOS、Windows、macOS、LG 电视）统一配置。
 
-本项目维护 Cloudflare 优选入口与客户端分流配置。系统在客户端实现业务通道解耦，兼顾通用流媒体与下载的极致速度，以及对风控敏感的 AI 业务（Gemini / Google / OpenCode Magpie）的高可用性。
+[简体中文](README.md) | [English](README_en.md)
 
 ```mermaid
 flowchart LR
-    client["客户端 (Shadowrocket / Clash)"]
+    client["全平台客户端 (iOS / PC / Mac / LG 电视)"]
     
     subgraph media["日常流媒体通道 (CF-MEDIA)"]
-        entry["Anycast 优选入口 (高速高吞吐 104.16.39.201)"]
+        entry["Anycast 优选入口 (本地测速固化 104.16.39.201)"]
         worker["EdgeTunnel (Pages 运行时)"]
-        dest_gen["通用站点 (YouTube 4K / GitHub / Twitter)"]
+        dest_gen["通用站点 (YouTube 4K / GitHub / Twitter / 常用下载)"]
         entry --> worker --> dest_gen
     end
     
     subgraph ai["AI 专线通道 (AI-专线)"]
-        node_ai["低延迟纯净出口 (新加坡 TT / 专线)"]
-        dest_ai["AI 服务 (Gemini / Antigravity API)"]
+        node_ai["低延迟纯净节点 (新加坡 TT / 专线)"]
+        dest_ai["AI 服务 (Gemini / AI Studio / OpenCode)"]
         node_ai --> dest_ai
     end
 
-    client -->|分流规则: 通用娱乐| entry
-    client -->|分流规则: *.googleapis.com / gemini.google.com| node_ai
+    client -->|通用流量: 默认分流| entry
+    client -->|AI 流量: *.googleapis.com / gemini.google.com| node_ai
 ```
 
-## 架构核心原理
+## 为什么需要本项目
 
-### 1. 业务通道完全解耦
-- **`CF-MEDIA`（流媒体与日常娱乐主通道）**：
-  通过国内至 Cloudflare 边缘的高速 Anycast 优选入口（`104.16.39.201`）接入，由部署在 Cloudflare Pages 上的 EdgeTunnel 直连出站。享受千兆低延迟与完全免费的无限流量，负责承载 99% 的大流量业务（YouTube 4K、Twitter/X、GitHub、海外下载等），并与电视端（LG webOS TV）完全统一。
-- **`AI-专线`（AI 业务独立专线）**：
-  Google Gemini 及 Google Cloud Code / Antigravity API 对云服务商机房 IP（如 Cloudflare ASN 13335）有严格的地域封锁（`User location is not supported`）。本架构通过专属低延迟节点（如新加坡 TT 节点）接管 AI 流量，以纯净地区出口直连 Google，彻底杜绝 400 拒绝服务与页面卡死。
+- **免费千兆流量与 AI 纯净出口兼得**。Cloudflare 机房 IP（ASN 13335）被 Google Gemini 严格封锁。本架构在客户端精准分离流量。99% 的大流量娱乐走完全免费的千兆 Anycast，AI 业务自动切换至纯净专线，彻底杜绝 400 报错与人机验证。
+- **告别节点频繁横跳与 502**。停用无意义的海外机房 Actions 测速，固化本地真实网络筛选的高速 Anycast 入口。采用静态直连替代多节点轮询竞速，长连接极其稳固，杜绝断流与网关超时。
+- **解决 YouTube 播放假死缓冲**。针对 WebSocket 隧道不支持 UDP 的特性，配置内置 QUIC（UDP 443）阻断规则。强制浏览器秒切高速 TCP（HTTP/2），彻底消除视频起播与进度条拖拽时的假死现象。
+- **全生态全设备统一配置**。一套设计对齐所有设备：iPhone、iPad、Windows、Mac 以及客厅中的 LG webOS OLED 电视，真正做到一次调优、全屋共享。
 
-### 2. 告别云端扫描与频繁抖动
-- **停用云端 Actions 定时扫描**：云端测试机位于海外数据中心，无法真实反映国内运营商线路质量，且定时刷新会导致长连接中断。本项目固化本地实测最优的极速入口。
-- **静态直连取代频繁轮询**：策略组采用直接绑定的 `select` 模式，消除了原多节点心跳探测引起的连接池横跳与 502 网关错误。
+## 客户端一键配置
 
-## 仓库结构与模块
+### 1. Clash Verge Rev / FlClash (Windows / macOS)
+1. 在客户端“订阅”页面导入你的 EdgeTunnel 订阅链接。
+2. 在“扩展配置 (Merge)”中添加以下配置地址并保存激活：
+   ```
+   https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/clash-verge.yaml
+   ```
+3. 客户端自动生成“日常流媒体”与“AI-专线”分组，并内嵌 QUIC 阻断与 YouTube 规则。
 
-- `ip.txt` 与 `global.txt`。本地实测固化的高速 Anycast 入口（`104.16.39.201#CF-MEDIA`）。
-- `clients/shadowrocket.conf`。客户端配置文件，内置分流规则集、`日常流媒体` 与 `AI-专线` 策略组。
-- `clients/clash-verge.yaml`。Clash Verge Rev / FlClash 扩展覆写配置，内置 QUIC 阻断优化。
-- `clients/README.md`。客户端配置导入与使用指引。
-- `scripts/verify_chain.py`。本地端到端验证工具，断言通用出站与 Gemini 出站的分流表现。
-- `scripts/node_probe.py`。本地 sing-box 运行时管理与真实传输吞吐压测工具。
-- `scripts/update.py`。Cloudflare 官方 IP 网段抽样与本地候选节点筛选脚本。
-- `scripts/exit_lookup.py`。查询 IP2Location / IPPure 接口并比对出口国家与 ASN。
+### 2. Shadowrocket (iOS)
+1. 在小火箭“配置”页面点击“从 URL 添加”，输入以下地址并下载应用：
+   ```
+   https://raw.githubusercontent.com/RealRayTan/cf-preferred-ips/main/clients/shadowrocket.conf
+   ```
+2. 在首页确保“全局路由”设置为“配置”。
+3. 首页自动展示两大专线分组，自动执行分流。
 
-## 客户端设置 (Shadowrocket)
+### 3. LG webOS 电视
+与本项目仓库的 `104.16.39.201` 高吞吐节点完全统一。直接作为电视端 Alcyone 的主力接入点，保障电视海报抓取与 YouTube 4K 顺畅播放。
 
-1. 在「配置」页面选择远程文件 `clients/shadowrocket.conf`，点击「从 URL 更新」。
-2. 确认首页顶部的「全局路由」设置为「**配置**」。
-3. 首页展示两大分组，实现全自动分流：
-   - **`日常流媒体`**：自动接入 `CF-MEDIA`，负责所有娱乐与通用网络流量。
-   - **`AI-专线`**：接入 `TT` 独立专线，负责 Gemini 网页版与本地 OpenCode / Magpie 对话。
+## 策略组设计
 
-## 本地验证与测试
+| 策略组名称 | 默认出口 | 承载业务与特性 |
+|---|---|---|
+| **`日常流媒体`** | `CF-MEDIA` | 负责 YouTube、Twitter/X、GitHub 及通用下载。千兆带宽，完全免费。 |
+| **`AI-专线`** | `TT` / 独立专线 | 负责 Gemini 网页版、Google AI Studio 以及 OpenCode/Magpie 会话。纯净出口，零风控。 |
 
-运行全量单元测试（30 项核心断言全部通过）：
+## 验证与测试
+
+本项目内置端到端链路健康自检脚本，确保发布节点具备完全的出站可用性：
 
 ```bash
+# 运行单元测试（30 项核心断言全部通过）
 python3 -m unittest discover -s tests -v
-```
 
-通过指定入口 IP 执行链路健康检查：
-
-```bash
+# 端到端链路可用性与分流检测
 python3 scripts/verify_chain.py --ip 104.16.39.201
 ```
