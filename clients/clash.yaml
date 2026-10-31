@@ -1,4 +1,4 @@
-# Clash Verge Rev / FlClash / Mihomo 全局扩展覆写配置 (Merge)
+# Clash Verge Rev / FlClash / Mihomo 全局扩展配置 (Merge)
 # 适用平台：Windows / macOS / Linux (Mihomo 内核)
 
 proxy-groups:
@@ -96,24 +96,33 @@ rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,reject,REJECT
 
-  # Steam 下载及官方静态资源直连
+  # Steam 下载服务器探测、连接管理器与静态资源直连（跑满千兆带宽）
+  - DOMAIN,client-download.steampowered.com,DIRECT
+  - DOMAIN-SUFFIX,cm.steampowered.com,DIRECT
   - DOMAIN-SUFFIX,steamcontent.com,DIRECT
   - DOMAIN-SUFFIX,steamusercontent.com,DIRECT
   - DOMAIN-SUFFIX,steamstatic.com,DIRECT
   - DOMAIN-SUFFIX,steamserver.net,DIRECT
-  - DOMAIN-SUFFIX,cm.steampowered.com,DIRECT
+  - DOMAIN-SUFFIX,steamchina.com,DIRECT
   - DOMAIN-KEYWORD,steamcontent,DIRECT
 
-  # 国内 Steam 下载节点
+  # 国内 Steam 下载与缓存节点直连
   - DOMAIN,dl.steam.clngaa.com,DIRECT
   - DOMAIN,dl.steam.ksyna.com,DIRECT
   - DOMAIN,st.dl.bscstorage.net,DIRECT
   - DOMAIN,st.dl.eccdnx.com,DIRECT
   - DOMAIN,st.dl.pinyuncloud.com,DIRECT
   - DOMAIN,steampipe.steamcontent.tnkjmec.com,DIRECT
+  - DOMAIN-SUFFIX,steamcontent.tnkjmec.com,DIRECT
   - DOMAIN,steampowered.com.8686c.com,DIRECT
   - DOMAIN,steamstatic.com.8686c.com,DIRECT
   - DOMAIN,xz.pphimalayanrt.com,DIRECT
+
+  # Steam 社区、网页与商店加速（防止国内无法访问社区/创意工坊/个人资料）
+  - DOMAIN-SUFFIX,steamcommunity.com,日常流媒体
+  - DOMAIN-SUFFIX,steampowered.com,日常流媒体
+  - DOMAIN-SUFFIX,steam-chat.com,日常流媒体
+  - DOMAIN-SUFFIX,steamgames.com,日常流媒体
 
   # Apple / iCloud 直连
   - RULE-SET,icloud,DIRECT
